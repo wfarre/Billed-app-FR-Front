@@ -40,8 +40,25 @@ export default class NewBill {
         this.fileName = fileName
       }).catch(error => console.error(error))
   }
+
   handleSubmit = e => {
     e.preventDefault()
+    const validFileTypes = ['image/jpeg', 'image/jpg', 'image/png' ];
+
+    function getExtension(filename){
+      const ext = filename.split('.');
+      return ext[ext.length-1];
+    }
+    function checkIfFileTypeIsValid( file, validFileTypes){
+      isValid = false;
+      const extension = getExtension
+      validFileTypes.map(type => {
+        if(extension === type){
+          return isValid = true;
+        }
+      })
+    }
+
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
@@ -57,8 +74,10 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log(bill);
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
+   
   }
 
   // not need to cover this function by tests

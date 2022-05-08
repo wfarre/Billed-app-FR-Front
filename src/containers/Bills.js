@@ -33,13 +33,18 @@ export default class {
       .bills()
       .list()
       .then(snapshot => {
+        // const antiChrono = (a, b) => new Date(a.date) < new Date(b.date)? 1 : -1;
+        // // console.log(snapshot);
+        // const newSnap = snapshot.sort(antiChrono);
+        // console.log(newSnap);
         const bills = snapshot
           .map(doc => {
             try {
               return {
                 ...doc,
-                date: formatDate(doc.date),
-                status: formatStatus(doc.status)
+                date: doc.date,
+                // date: formatDate(doc.date),
+                status: formatStatus(doc.status),
               }
             } catch(e) {
               // if for some reason, corrupted data was introduced, we manage here failing formatDate function
@@ -48,12 +53,13 @@ export default class {
               return {
                 ...doc,
                 date: doc.date,
-                status: formatStatus(doc.status)
+                status: formatStatus(doc.status),
               }
             }
           })
-          console.log('length', bills.length)
-        return bills
+          // bills.map(bill=>
+          //   console.log(bill.date))
+        return bills;
       })
     }
   }

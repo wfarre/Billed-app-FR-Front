@@ -17,14 +17,25 @@ const row = (bill) => {
       </td>
     </tr>
     `)
-  }
+}
 
 const rows = (data) => {
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }
 
-export default ({ data: bills, loading, error }) => {
-  
+
+function organizeByDate(array){
+  const antiChrono = (a, b) => Date.parse(a.date) < Date.parse(b.date) ? 1 : -1;
+  return [...array].sort(antiChrono)
+}
+
+export default ({
+  data: bills,
+  loading,
+  error
+}) => {
+
+
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -47,13 +58,36 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
+
+  if(bills){
+    bills = organizeByDate(bills);
+  }
+  // console.log(mybills);
+
+  // function sayHello(){
+  //   console.log("sayHello");
+  // }
+
+  // sayHello();
+  // console.log("hello");
+  // console.log(bills);
+
+  // bills.map(bill => console.log(bill.dateNonFormated))
+  // console.log(bills);
+  // bills.map(bill => console.log(Date.parse(bill.date)));
+
+  // console.log(Date.parse(bills[2].date));
+
+  // const antiChrono = (a, b) => new Date(a.date) < new Date(b.date) ? 1 : -1;
+  // bills.sort(antiChrono);
   
+
   return (`
     <div class='layout'>
       ${VerticalLayout(120)}
       <div class='content'>
         <div class='content-header'>
-          <div class='content-title'> Mes notes de frais </div>
+          <div class='content-title'>Mes notes de frais</div>
           <button type="button" data-testid='btn-new-bill' class="btn btn-primary">Nouvelle note de frais</button>
         </div>
         <div id="data-table">
@@ -75,6 +109,5 @@ export default ({ data: bills, loading, error }) => {
         </div>
       </div>
       ${modal()}
-    </div>`
-  )
+    </div>`)
 }

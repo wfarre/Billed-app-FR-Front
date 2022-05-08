@@ -32,5 +32,19 @@
     "jest": "^26.1.0",
     "jest-environment-jsdom": "^27.4.6",
     "jest-html-reporter": "^3.1.3"
-  }
+  },
+  "name": "billed-app-fr-front",
+  "description": "Ce projet, dit frontend, est connecté à un service API backend que vous devez aussi lancer en local.",
+  "version": "1.0.0",
+  "main": "setup-jest.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wfarre/Billed-app-FR-Front.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wfarre/Billed-app-FR-Front/issues"
+  },
+  "homepage": "https://github.com/wfarre/Billed-app-FR-Front#readme"
 }

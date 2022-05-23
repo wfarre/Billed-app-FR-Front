@@ -16,14 +16,38 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate })
   }
   handleChangeFile = e => {
-    e.preventDefault()
+    // e.preventDefault()
+    // const validFileTypes = ['image/jpeg', 'image/jpg', 'image/png' ];
+
+    // function getExtension(filename){
+    //   const ext = filename.split('.');
+    //   return ext[ext.length-1];
+    // }
+    // function checkIfFileTypeIsValid( file, validFileTypes){
+    //   let isValid = false;
+    //   const extension = getExtension
+    //   validFileTypes.map(type => {
+    //     if(extension === type){
+    //       return isValid = true;
+    //     }
+    //   })
+    // }
+
+
+
+
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+    if(checkIfFileTypeIsValid(filePath)){
+      formData.append('file', file)
+      formData.append('email', email)
+    } else {
+      console.log("error");
+    } 
+   
 
     this.store
       .bills()

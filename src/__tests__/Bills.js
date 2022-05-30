@@ -4,6 +4,10 @@
 
  import '@testing-library/jest-dom'
 
+ import $ from 'jquery';
+ global.$ = $;
+global.jQuery = $;
+
 import {getAllByTestId, getByRole, getByTestId, screen, waitFor} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
@@ -14,8 +18,12 @@ import router from "../app/Router.js";
 import userEvent from "@testing-library/user-event";
 import NewBillUI from "../views/NewBillUI"
 import Actions from "../views/Actions"
-// import handleClickIconEye from "../containers/Bills"
 import Bills from "../containers/Bills";
+import eyeBlueIcon from "../assets/svg/eye_blue.js"
+
+import DashboardFormUI from "../views/DashboardFormUI.js"
+import DashboardUI from "../views/DashboardUI.js"
+import Dashboard, { filteredBills, cards } from "../containers/Dashboard.js"
 
 jest.mock("../app/store", () => mockStore)
 
@@ -37,8 +45,6 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId('icon-window')
       //to-do write expect expression
       expect(windowIcon.classList).toContain(`active-icon`);
-
-
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
@@ -66,76 +72,42 @@ describe("Given I am connected as an employee", () => {
         await waitFor(() => screen.getByText("Envoyer une note de frais"))
         
     })
-    test("I click on the eye icon, the picture of the bill should be displayed", () => {
-      // const root = document.createElement("div")
-      // root.setAttribute("id", "root")
-      // document.body.append(root)
-      // router()
-      // window.onNavigate(ROUTES_PATH.Bills)
-      // // Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      // // window.localStorage.setItem('user', JSON.stringify({
-      // //   type: 'Employee'
-      // // }))
-      // // document.body.innerHTML = Bills
-      // // const onNavigate = (pathname) => {
-      // //   document.body.innerHTML = ROUTES({ pathname })
-      // // }
-      // // const store = null
-      // // const billspage = new Bills({
-      // //   document, onNavigate, store, bills, localStorage: window.localStorage
-      // // })
+    describe('When I click on the eye icon', ()=>{
+      test("a modal should be opened", async () => {
 
-      // // const billspage = new Bills({
-      // //   document, onNavigate, store: null, bills, localStorage: window.localStorage
-      // // })
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({
+          type: 'Employee'
+        }))
 
-      // // const handleClickIconEye = jest.fn(handleClickIconEye)
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname })
+        }
+        const store = mockStore
+        const billpage = new Bills({
+          document, onNavigate, store, localStorage: window.localStorage
+        })
 
-      // const eyeBtn = getAllByTestId(document.body,"icon-eye")
-      
+        console.log("het");
+        console.log(document.querySelectorAll("tr")[1].innerHTML);
+        console.log(document.getElementById("eye").innerHTML);
 
-      // // eyeBtn.forEach( eye => {
-      // //   eye.addEventListener("click", handleClickIconEye)
-      // //   userEvent.click(
-      // //     eye
-      // //   )
-      // // })
+        const eyes = screen.getAllByTestId('icon-eye');
+        const eye1 = eyes[0]
+        console.log(eyes[0]);
 
-      // // eyeBtn[1].addEventListener("click", handleClickIconEye(eyeBtn[1]))
-      // userEvent.click(eyeBtn[1])
+        const handleClickIconEye1 = jest.fn(billpage.handleClickIconEye(eye1))
+ 
+        eye1.addEventListener("click", handleClickIconEye1);
+        userEvent.click(eye1)
+        expect(handleClickIconEye1).toHaveBeenCalled()
 
-      // expect(handleClickIconEye).toHaveBeenCalled()
-
-      // const modale = screen.getByRole("dialog");
-
-      // expect(modale).toBeTruthy();
-
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
-      // document.body.innerHTML = DashboardFormUI(bills[0])
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-      const store = null
-      const dashboard = new Bills({
-        document, onNavigate, store, bills, localStorage: window.localStorage
+        const modale = screen.getAllByTestId('modaleFile')[0]
+        expect(modale).toBeTruthy()
+  
       })
-
-      const handleClickIconEye = jest.fn(dashboard.handleClickIconEye)
-      const eyes = screen.getAllByTestId('icon-eye')
-      eyes.forEach( eye => {
-        eye.addEventListener('click', handleClickIconEye(eye))
-        userEvent.click(eye)
-        expect(handleClickIconEye).toHaveBeenCalled()
-        const modale = screen.getByTestId('modaleFileAdmin')
-      expect(modale).toBeTruthy()
-      })
-      
-
-      
     })
+    
   })
 })
 
@@ -203,7 +175,6 @@ describe("Given I am a user connected as Employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await new Promise(process.nextTick);
       const message = await screen.getByText(/Erreur 500/)
-      console.log(message);
       expect(message).toBeTruthy()
     })
   })

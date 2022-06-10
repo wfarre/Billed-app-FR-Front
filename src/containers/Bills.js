@@ -34,17 +34,12 @@ export default class {
       .bills()
       .list()
       .then(snapshot => {
-        // const antiChrono = (a, b) => new Date(a.date) < new Date(b.date)? 1 : -1;
-        // // console.log(snapshot);
-        // const newSnap = snapshot.sort(antiChrono);
-        // console.log(newSnap);
         const bills = snapshot
           .map(doc => {
             try {
               return {
                 ...doc,
                 date: doc.date,
-                // date: formatDate(doc.date),
                 status: formatStatus(doc.status),
               }
             } catch(e) {
@@ -58,12 +53,12 @@ export default class {
               }
             }
           })
-          // bills.map(bill=>
-          //   console.log(bill.date))
         return bills;
       })
     }
   }
 }
+
+
 
 

@@ -112,8 +112,6 @@ describe("Given that I am a user on login page", () => {
     });
 
     test("It should renders Bills page", () => {
-      // console.log(screen.getAllByText("Mes notes de frais"));
-      console.log("proutify");
       expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
     });
   });

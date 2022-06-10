@@ -126,11 +126,6 @@ describe("Given I am a user connected as Employee", () => {
       router()
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByText("Mes notes de frais"))
-      // const contentPending  = await screen.getByText("En attente (1)")
-      // expect(contentPending).toBeTruthy()
-      // const contentRefused  = await screen.getByText("Refusé (2)")
-      // expect(contentRefused).toBeTruthy()
-      // expect(screen.getByTestId("big-billed-icon")).toBeTruthy()
     })
   describe("When an error occurs on API", () => {
     beforeEach(() => {

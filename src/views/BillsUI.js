@@ -24,9 +24,9 @@ const rows = (data) => {
 }
 
 
-function organizeByDate(array){
-  const antiChrono = (a, b) => Date.parse(a.date) < Date.parse(b.date) ? 1 : -1;
-  return [...array].sort(antiChrono)
+function sortByDate(array){
+  const antiChrono = (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() 
+  return array.sort(antiChrono);
 }
 
 export default ({
@@ -60,28 +60,9 @@ export default ({
   }
 
   if(bills){
-    bills = organizeByDate(bills);
+    bills = sortByDate(bills)
   }
-  // console.log(mybills);
-
-  // function sayHello(){
-  //   console.log("sayHello");
-  // }
-
-  // sayHello();
-  // console.log("hello");
-  // console.log(bills);
-
-  // bills.map(bill => console.log(bill.dateNonFormated))
-  // console.log(bills);
-  // bills.map(bill => console.log(Date.parse(bill.date)));
-
-  // console.log(Date.parse(bills[2].date));
-
-  // const antiChrono = (a, b) => new Date(a.date) < new Date(b.date) ? 1 : -1;
-  // bills.sort(antiChrono);
   
-
   return (`
     <div class='layout'>
       ${VerticalLayout(120)}

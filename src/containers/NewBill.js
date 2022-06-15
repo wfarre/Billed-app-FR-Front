@@ -1,10 +1,17 @@
-import { ROUTES_PATH } from '../constants/routes.js'
+import {
+  ROUTES_PATH
+} from '../constants/routes.js'
 import Logout from "./Logout.js"
 
 
 
 export default class NewBill {
-  constructor({ document, onNavigate, store, localStorage }) {
+  constructor({
+    document,
+    onNavigate,
+    store,
+    localStorage
+  }) {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
@@ -15,47 +22,54 @@ export default class NewBill {
     this.fileUrl = null
     this.fileName = null
     this.billId = null
-    new Logout({ document, localStorage, onNavigate })
+    new Logout({
+      document,
+      localStorage,
+      onNavigate
+    })
   }
   handleChangeFile = e => {
-   
+
     e.preventDefault()
 
-    const validFileTypes = ['jpeg', 'jpg', 'png' ];
+    console.log(e.target.value);
 
-    function getExtension(filename){
+    const validFileTypes = ['jpeg', 'jpg', 'png'];
+
+    function getExtension(filename) {
       const ext = filename.split('.');
-      return ext[ext.length-1].toLowerCase();
+      return ext[ext.length - 1].toLowerCase();
     }
 
-    function checkIfFileTypeIsValid( file, validFileTypes){
+    function checkIfFileTypeIsValid(file, validFileTypes) {
       let isValid = false;
       console.log(file);
       const extension = getExtension(file)
       console.log(extension);
       validFileTypes.map(type => {
-        if(extension === type){
+        if (extension === type) {
           return isValid = true;
         }
       })
       return isValid;
     }
 
-    function returnRightFile(fileName){
-      if(checkIfFileTypeIsValid(fileName, validFileTypes)){
+    function returnRightFile(fileName) {
+      if (checkIfFileTypeIsValid(fileName, validFileTypes)) {
         return fileName;
-      } else{
+      } else {
+        e.target.value = null;
         throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format')
       }
     }
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    
-      const formData = new FormData()
-      const email = JSON.parse(localStorage.getItem("user")).email
-      formData.append('file', file)
-      formData.append('email', email)
+    const fileName = filePath[filePath.length - 1]
+
+    const formData = new FormData()
+    const email = JSON.parse(localStorage.getItem("user")).email
+    formData.append('file', file)
+    formData.append('email', email)
 
     this.store
       .bills()
@@ -65,7 +79,10 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({fileUrl, key}) => {
+      .then(({
+        fileUrl,
+        key
+      }) => {
         this.billId = key
         this.fileUrl = fileUrl
         this.fileName = returnRightFile(fileName);
@@ -75,67 +92,40 @@ export default class NewBill {
   handleSubmit = e => {
     e.preventDefault()
 
-    const validFileTypes = ['jpeg', 'jpg', 'png' ];
-
-function getExtension(filename){
-  const ext = filename.split('.');
-  return ext[ext.length-1].toLowerCase();
-}
-
-function checkIfFileTypeIsValid( file, validFileTypes){
-  let isValid = false;
-  console.log(file);
-  const extension = getExtension(file)
-  console.log(extension);
-  validFileTypes.map(type => {
-    if(extension === type){
-      return isValid = true;
-    }
-  })
-  return isValid;
-}
-
-function returnRightFile(fileName){
-  if(checkIfFileTypeIsValid(fileName, validFileTypes)){
-    return fileName;
-  } else{
-    throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png)')
-  }
-}
-  
-
-      console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
+      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-      date:  e.target.querySelector(`input[data-testid="datepicker"]`).value,
+      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
       vat: e.target.querySelector(`input[data-testid="vat"]`).value,
       pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
       commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
       fileUrl: this.fileUrl,
-      fileName: returnRightFile(this.fileName),
+      fileName: this.fileName,
       status: 'pending'
     }
     console.log(bill);
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
-   
+
   }
 
   // not need to cover this function by tests
   updateBill = (bill) => {
     if (this.store) {
       this.store
-      .bills()
-      .update({data: JSON.stringify(bill), selector: this.billId})
-      .then(() => {
-        this.onNavigate(ROUTES_PATH['Bills'])
-      })
-      .catch(error => console.error(error))
+        .bills()
+        .update({
+          data: JSON.stringify(bill),
+          selector: this.billId
+        })
+        .then(() => {
+          this.onNavigate(ROUTES_PATH['Bills'])
+        })
+        .catch(error => console.error(error))
     }
   }
 }
-

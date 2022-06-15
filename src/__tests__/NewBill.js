@@ -563,6 +563,16 @@ describe("Given I am connected as an employee", () => {
           });
           expect(commentary.value).toBe("pasunemail")
 
+          const file = screen.getByTestId('file')
+          // file.addEventListener("change", handleChangeFile)
+          fireEvent.change(file, {
+            target: {
+              files: [new File(['(⌐□_□)'], 'chucknorris.png', {
+                type: 'image/png'
+              })]
+            }
+          })
+
           const email = "employee@company.tld"
 
 
@@ -576,15 +586,24 @@ describe("Given I am connected as an employee", () => {
           //   type: "Transports",
           //   name: "Vol Paris-Madrid",
           //   amount: 345,
-          //   date: "20201203",
+          //   date: "2020-03-01",
           //   vat: 20,
-          //   pct: 10,
-          //   commentary: " ",
-          //   fileUrl: 'hello.jpg',
-          //   fileName: 'hello.jpg',
+          //   pct: 2,
+          //   commentary: "pasunemail",
+          //   fileUrl: 'chucknorris.png',
+          //   fileName: 'chucknorris.png',
           //   status: 'pending'
           // })
-          // expect(handleSubmit).toBeTruthy()
+          expect(handleSubmit).toHaveBeenCalled();
+          expect(handleSubmit).toBeTruthy();
+
+          // router()
+          // window.onNavigate(ROUTES_PATH['Bills'])
+          // this.onNavigate()
+
+          // await waitFor(() => screen.getByText("Mes notes de frais"))
+          // expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+
         })
       })
     })

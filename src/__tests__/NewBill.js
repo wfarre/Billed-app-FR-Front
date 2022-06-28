@@ -597,8 +597,8 @@ describe("Given I am connected as an employee", () => {
           expect(handleSubmit).toHaveBeenCalled();
           expect(handleSubmit).toBeTruthy();
 
-          // router()
-          // window.onNavigate(ROUTES_PATH['Bills'])
+          router()
+          window.onNavigate(ROUTES_PATH['Bills'])
           // this.onNavigate()
 
           // await waitFor(() => screen.getByText("Mes notes de frais"))

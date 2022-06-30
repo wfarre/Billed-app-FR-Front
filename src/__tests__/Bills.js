@@ -16,14 +16,8 @@ import {localStorageMock} from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store"
 import router from "../app/Router.js";
 import userEvent from "@testing-library/user-event";
-import NewBillUI from "../views/NewBillUI"
-import Actions from "../views/Actions"
-import Bills from "../containers/Bills";
-import eyeBlueIcon from "../assets/svg/eye_blue.js"
 
-import DashboardFormUI from "../views/DashboardFormUI.js"
-import DashboardUI from "../views/DashboardUI.js"
-import Dashboard, { filteredBills, cards } from "../containers/Dashboard.js"
+import Bills from "../containers/Bills";
 
 jest.mock("../app/store", () => mockStore)
 
@@ -51,8 +45,6 @@ describe("Given I am connected as an employee", () => {
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
       const antiChrono = (a, b) => ((a < b) ? 1 : -1)
       const datesSorted = [...dates].sort(antiChrono)
-      // console.log(screen);
-      // console.log(document.body.innerHTML);
       expect(dates).toEqual(datesSorted)
     })
     test("I click on new bill button and it redirect on new bill page", async () => {

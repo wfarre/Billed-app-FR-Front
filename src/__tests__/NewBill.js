@@ -21,9 +21,73 @@ import {
 } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store";
 import userEvent from "@testing-library/user-event";
+import {checkIfFileTypeIsValid, returnRightFile} from "../containers/NewBill.js";
 
+
+
+
+
+
+
+describe("Given I upload a picture", () => {
+  describe("When the picture is at the wrong format", () => {
+    test("Then the file is not valid", () => {
+      expect(checkIfFileTypeIsValid("toto.txt")).toBe(false);
+    })
+    test("Then it should throw an error", () => {
+      function wrongFile(){
+        returnRightFile("toto.txt");
+      }
+      expect(wrongFile).toThrowError(new Error ('wrong format: please send an image with the right format (jpg, jpeg or png) format'))
+    })
+  })
+  describe("When the picture is at the right format", () => {
+    test("Then the file is valid", () => {
+      expect(checkIfFileTypeIsValid("toto.jpg")).toBe(true);
+
+    })
+    test("Then it should return the name of the file", ()=> {
+      expect(returnRightFile("toto.jpg")).toBe("toto.jpg")
+      expect(returnRightFile("toto.jpeg")).toBe("toto.jpeg")
+      expect(returnRightFile("toto.png")).toBe("toto.png")
+      expect(returnRightFile("toto.png")).not.toBe("toto.txt");
+      expect(returnRightFile("toto.jpg")).not.toBe("gertrude.jpg")
+      
+
+
+
+    })
+  })
+
+})
+
+// I test what should appear on the page 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
+    test("Then the text 'Envoyer une note de frais' should appear", () => {
+      // const html = NewBillUI()
+      // document.body.innerHTML = html
+      //to-do write assertion
+
+
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+        })
+      );
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.NewBill);
+
+      expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy();
+
+    });
     test("Then the mail icon in the vertical layout should be highlighted", async () => {
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
@@ -44,10 +108,6 @@ describe("Given I am connected as an employee", () => {
       const mailIcon = screen.getByTestId("icon-mail");
       //to-do write expect expression
       expect(mailIcon.classList).toContain(`active-icon`);
-
-      // const html = NewBillUI()
-      // document.body.innerHTML = html
-      //to-do write assertion
     });
     test("Then the new bill form should appear", async () => {
       Object.defineProperty(window, "localStorage", {
@@ -372,64 +432,15 @@ describe("Given I am connected as an employee", () => {
         </form>
       `);
     });
-    describe("Given the user click on expense type ", () => {
-      test("Then the user should be able to select one type of expense", async () => {
-        Object.defineProperty(window, "localStorage", {
-          value: localStorageMock,
-        });
-        window.localStorage.setItem(
-          "user",
-          JSON.stringify({
-            type: "Employee",
-          })
-        );
-        const root = document.createElement("div");
-        root.setAttribute("id", "root");
-        document.body.append(root);
-        router();
-        window.onNavigate(ROUTES_PATH.NewBill);
 
-        await waitFor(() => screen.getByTestId('expense-type'))
-        const expenseType = screen.getByTestId('expense-type')
-        console.log(expenseType);
-        expect(expenseType).toBeTruthy();
-
-        // VALUE BY DEFAULT 
-        expect(screen.getByRole('option', {
-          name: 'Transports'
-        }).selected).toBe(true)
-        expect(screen.getByRole('option', {
-          name: 'IT et électronique'
-        }).selected).toBe(false)
-
-        const optionNew = screen.getByRole('option', {
-          name: 'IT et électronique'
-        })
-        // userEvent.selectOptions(screen.getByTestId('expense-type', [
-        //   optionNew
-        // ]))
-        // userEvent.click(optionNew)
-
-        fireEvent.change(expenseType, {
-          target: {
-            value: 'IT et électronique'
-          }
-        })
-        // userEvent('change', {target: {value: 'IT et électronique'}})
-        expect(screen.getByRole('option', {
-          name: 'Transports'
-        }).selected).toBe(false)
-        expect(screen.getByRole('option', {
-          name: 'IT et électronique'
-        }).selected).toBe(true)
+  })
+})
 
 
-        // userEvent.click()
-      })
-
-    })
-    describe("Given the user is uploading a picture", () => {
-      test("Then the file should be a correct format", async () => {
+describe("Given I am connected as an employee", () => {
+  describe("Given I am on the NewBillPage", () => {
+    describe("When the user is uploading a picture", () => {
+      test("Then it should throw an error if the format is not correct (different from JPEG, JPG, PNG)", async () => {
         Object.defineProperty(window, "localStorage", {
           value: localStorageMock,
         });
@@ -454,6 +465,42 @@ describe("Given I am connected as an employee", () => {
 
         const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
 
+        const file = screen.getByTestId('file')
+        file.addEventListener("change", handleChangeFile)
+        fireEvent.change(file, {
+          target: {
+            files: [new File(['(⌐□_□)'], 'chucknorris.txt', {
+              type: 'text/txt'
+            })]
+          }
+        })
+        expect(handleChangeFile).toHaveBeenCalled();
+        expect(handleChangeFile).toThrowError(Error);
+      })
+      test("Then it should accept the file if the format is correct (JPEG, JPG, PNG)", async () => {
+        Object.defineProperty(window, "localStorage", {
+          value: localStorageMock,
+        });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.append(root);
+        router();
+        window.onNavigate(ROUTES_PATH.NewBill);
+
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store: mockStore,
+          localStorage: window.localStorage
+        })
+
+        const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
 
         const file = screen.getByTestId('file')
         file.addEventListener("change", handleChangeFile)
@@ -466,18 +513,65 @@ describe("Given I am connected as an employee", () => {
         })
         expect(handleChangeFile).toHaveBeenCalled();
         expect(handleChangeFile).toBeTruthy();
-
-        fireEvent.change(file, {
-          target: {
-            files: [new File(['(⌐□_□)'], 'chucknorris.txt', {
-              type: 'text/txt'
-            })]
-          }
-        })
-        expect(handleChangeFile).toHaveBeenCalled();
-        expect(handleChangeFile).toThrowError(Error);
       })
     })
+  })
+})
+
+
+// describe("Given the user click on expense type ", () => {
+//   test("Then the user should be able to select one type of expense", async () => {
+//     Object.defineProperty(window, "localStorage", {
+//       value: localStorageMock,
+//     });
+//     window.localStorage.setItem(
+//       "user",
+//       JSON.stringify({
+//         type: "Employee",
+//       })
+//     );
+//     const root = document.createElement("div");
+//     root.setAttribute("id", "root");
+//     document.body.append(root);
+//     router();
+//     window.onNavigate(ROUTES_PATH.NewBill);
+
+//     await waitFor(() => screen.getByTestId('expense-type'))
+//     const expenseType = screen.getByTestId('expense-type')
+//     console.log(expenseType);
+//     expect(expenseType).toBeTruthy();
+
+//     // VALUE BY DEFAULT 
+//     expect(screen.getByRole('option', {
+//       name: 'Transports'
+//     }).selected).toBe(true)
+//     expect(screen.getByRole('option', {
+//       name: 'IT et électronique'
+//     }).selected).toBe(false)
+
+//     const optionNew = screen.getByRole('option', {
+//       name: 'IT et électronique'
+//     })
+
+//     fireEvent.change(expenseType, {
+//       target: {
+//         value: 'IT et électronique'
+//       }
+//     })
+//     expect(screen.getByRole('option', {
+//       name: 'Transports'
+//     }).selected).toBe(false)
+//     expect(screen.getByRole('option', {
+//       name: 'IT et électronique'
+//     }).selected).toBe(true)
+
+
+//   })
+
+// })
+
+describe("Given I am connected as an employee", () => {
+  describe("Given I am on the NewBillPage", () => {
     describe('Given the user submits a new bill', () => {
       describe('Given the picture format is correct', () => {
         test('Then it should add the new bill to the other bills and return to the homepage', async () => {
@@ -577,25 +671,31 @@ describe("Given I am connected as an employee", () => {
 
 
           const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
-          newBill.updateBill = jest.fn().mockResolvedValue({});
+
+          // const updateBill = jest.fn(newBill.updateBill);
+          // newBill.updateBill = jest.fn().mockResolvedValue({});
 
           formNewBill.addEventListener("submit", handleSubmit)
           fireEvent.submit(formNewBill)
-          // expect(handleSubmit).toHaveBeenCalledWithconst({
-          //   email,
-          //   type: "Transports",
-          //   name: "Vol Paris-Madrid",
-          //   amount: 345,
-          //   date: "2020-03-01",
-          //   vat: 20,
-          //   pct: 2,
-          //   commentary: "pasunemail",
-          //   fileUrl: 'chucknorris.png',
-          //   fileName: 'chucknorris.png',
-          //   status: 'pending'
-          // })
+
+          // const bill = {
+          //     email,
+          //     type: "Transports",
+          //     name: "Vol Paris-Madrid",
+          //     amount: 345,
+          //     date: "2020-03-01",
+          //     vat: 20,
+          //     pct: 2,
+          //     commentary: "pasunemail",
+          //     // fileUrl: 'chucknorris.png',
+          //     fileName: 'chucknorris',
+          //     status: 'pending'
+          //   }
+
           expect(handleSubmit).toHaveBeenCalled();
           expect(handleSubmit).toBeTruthy();
+          // expect(this.updateBill).toHaveBeenCalled();
+          // expect(updateBill).toHaveBeenCalledWith(bill)
 
           router()
           window.onNavigate(ROUTES_PATH['Bills'])

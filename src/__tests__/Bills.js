@@ -47,22 +47,24 @@ describe("Given I am connected as an employee", () => {
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
     })
-    test("I click on new bill button and it redirect on new bill page", async () => {
-      // my test 
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.append(root)
-      router()
-      window.onNavigate(ROUTES_PATH.Bills)
-
-      userEvent.click(
-        getByTestId(document.body, "btn-new-bill")
-        )
+    describe("When I click on new bill button", () => {
+      test("Then it redirects me on new bill page", async () => {
+        // my test 
+        const root = document.createElement("div")
+        root.setAttribute("id", "root")
+        document.body.append(root)
         router()
-        window.onNavigate(ROUTES_PATH["NewBill"])
-
-        await waitFor(() => screen.getByText("Envoyer une note de frais"))
-        
+        window.onNavigate(ROUTES_PATH.Bills)
+  
+        userEvent.click(
+          getByTestId(document.body, "btn-new-bill")
+          )
+          router()
+          window.onNavigate(ROUTES_PATH["NewBill"])
+  
+          await waitFor(() => screen.getByText("Envoyer une note de frais"))
+          
+      })
     })
     describe('When I click on the eye icon', ()=>{
       test("a modal should be opened", async () => {

@@ -118,10 +118,6 @@ export default class NewBill {
       }) => {
         this.billId = key
         this.fileUrl = fileUrl
-        console.log("bilibili");
-    console.log("rat");
-    console.log(fileUrl);
-        
         this.fileName = returnRightFile(fileName,  e.target.value);
       }).catch(error => console.error(error))
   }

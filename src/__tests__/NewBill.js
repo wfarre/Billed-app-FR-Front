@@ -21,24 +21,27 @@ import {
 } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store";
 import userEvent from "@testing-library/user-event";
-import {checkIfFileTypeIsValid, returnRightFile} from "../containers/NewBill.js";
+import {
+  checkIfFileTypeIsValid,
+  returnRightFile
+} from "../containers/NewBill.js";
 
 
 
 
 
 
-
+// test unitaire
 describe("Given I upload a picture", () => {
   describe("When the picture is at the wrong format", () => {
     test("Then the file is not valid", () => {
       expect(checkIfFileTypeIsValid("toto.txt")).toBe(false);
     })
     test("Then it should throw an error", () => {
-      function wrongFile(){
+      function wrongFile() {
         returnRightFile("toto.txt");
       }
-      expect(wrongFile).toThrowError(new Error ('wrong format: please send an image with the right format (jpg, jpeg or png) format'))
+      expect(wrongFile).toThrowError(new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format'))
     })
   })
   describe("When the picture is at the right format", () => {
@@ -46,19 +49,14 @@ describe("Given I upload a picture", () => {
       expect(checkIfFileTypeIsValid("toto.jpg")).toBe(true);
 
     })
-    test("Then it should return the name of the file", ()=> {
+    test("Then it should return the name of the file", () => {
       expect(returnRightFile("toto.jpg")).toBe("toto.jpg")
       expect(returnRightFile("toto.jpeg")).toBe("toto.jpeg")
       expect(returnRightFile("toto.png")).toBe("toto.png")
       expect(returnRightFile("toto.png")).not.toBe("toto.txt");
       expect(returnRightFile("toto.jpg")).not.toBe("gertrude.jpg")
-      
-
-
-
     })
   })
-
 })
 
 // I test what should appear on the page 
@@ -519,57 +517,6 @@ describe("Given I am connected as an employee", () => {
 })
 
 
-// describe("Given the user click on expense type ", () => {
-//   test("Then the user should be able to select one type of expense", async () => {
-//     Object.defineProperty(window, "localStorage", {
-//       value: localStorageMock,
-//     });
-//     window.localStorage.setItem(
-//       "user",
-//       JSON.stringify({
-//         type: "Employee",
-//       })
-//     );
-//     const root = document.createElement("div");
-//     root.setAttribute("id", "root");
-//     document.body.append(root);
-//     router();
-//     window.onNavigate(ROUTES_PATH.NewBill);
-
-//     await waitFor(() => screen.getByTestId('expense-type'))
-//     const expenseType = screen.getByTestId('expense-type')
-//     console.log(expenseType);
-//     expect(expenseType).toBeTruthy();
-
-//     // VALUE BY DEFAULT 
-//     expect(screen.getByRole('option', {
-//       name: 'Transports'
-//     }).selected).toBe(true)
-//     expect(screen.getByRole('option', {
-//       name: 'IT et électronique'
-//     }).selected).toBe(false)
-
-//     const optionNew = screen.getByRole('option', {
-//       name: 'IT et électronique'
-//     })
-
-//     fireEvent.change(expenseType, {
-//       target: {
-//         value: 'IT et électronique'
-//       }
-//     })
-//     expect(screen.getByRole('option', {
-//       name: 'Transports'
-//     }).selected).toBe(false)
-//     expect(screen.getByRole('option', {
-//       name: 'IT et électronique'
-//     }).selected).toBe(true)
-
-
-//   })
-
-// })
-
 describe("Given I am connected as an employee", () => {
   describe("Given I am on the NewBillPage", () => {
     describe('Given the user submits a new bill', () => {
@@ -658,7 +605,6 @@ describe("Given I am connected as an employee", () => {
           expect(commentary.value).toBe("pasunemail")
 
           const file = screen.getByTestId('file')
-          // file.addEventListener("change", handleChangeFile)
           fireEvent.change(file, {
             target: {
               files: [new File(['(⌐□_□)'], 'chucknorris.png', {
@@ -667,45 +613,165 @@ describe("Given I am connected as an employee", () => {
             }
           })
 
-          const email = "employee@company.tld"
-
-
           const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
-
-          // const updateBill = jest.fn(newBill.updateBill);
-          // newBill.updateBill = jest.fn().mockResolvedValue({});
 
           formNewBill.addEventListener("submit", handleSubmit)
           fireEvent.submit(formNewBill)
 
-          // const bill = {
-          //     email,
-          //     type: "Transports",
-          //     name: "Vol Paris-Madrid",
-          //     amount: 345,
-          //     date: "2020-03-01",
-          //     vat: 20,
-          //     pct: 2,
-          //     commentary: "pasunemail",
-          //     // fileUrl: 'chucknorris.png',
-          //     fileName: 'chucknorris',
-          //     status: 'pending'
-          //   }
-
           expect(handleSubmit).toHaveBeenCalled();
           expect(handleSubmit).toBeTruthy();
-          // expect(this.updateBill).toHaveBeenCalled();
-          // expect(updateBill).toHaveBeenCalledWith(bill)
 
           router()
-          window.onNavigate(ROUTES_PATH['Bills'])
-          // this.onNavigate()
+          window.onNavigate(ROUTES_PATH["Bills"]);
 
-          // await waitFor(() => screen.getByText("Mes notes de frais"))
-          // expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+          await waitFor(() => screen.getByTestId('icon-window'))
+          const windowIcon = screen.getByTestId('icon-window')
+          expect(windowIcon.classList).toContain(`active-icon`);
 
         })
       })
+    })
+  })
+})
+
+// Post 
+describe("Given I am connected as an employee", () => {
+  describe("When I submit a new bill", () => {
+    test("Then it should be created in the store", async () => {
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.NewBill);
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: mockStore,
+        localStorage: window.localStorage
+      })
+
+      const handleSubmit = jest.fn(e => newBill.handleSubmit(e))
+      const handleChangeFile = jest.fn(e => newBill.handleChangeFile(e))
+
+      const update = jest.fn(mockStore.bills().update);
+      const create = jest.fn(mockStore.bills().create);
+
+
+      const type = screen.getByTestId('expense-type')
+      fireEvent.change(type, {
+        target: {
+          value: "Transports"
+        }
+      });
+      expect(type.value).toBe("Transports");
+
+      const name = screen.getByTestId('expense-name')
+      fireEvent.change(name, {
+        target: {
+          value: "Vol Paris-Madrid"
+        }
+      });
+      expect(name.value).toBe("Vol Paris-Madrid");
+
+      const amount = screen.getByTestId('amount')
+      fireEvent.change(amount, {
+        target: {
+          value: 345
+        }
+      });
+      expect(amount.value).toBe("345");
+
+      const date = screen.getByTestId('datepicker')
+      fireEvent.change(date, {
+        target: {
+          value: "2020-03-01"
+        }
+      });
+      expect(date.value).toBe("2020-03-01");
+
+      const vat = screen.getByTestId('vat')
+      fireEvent.change(vat, {
+        target: {
+          value: 20
+        }
+      });
+      expect(vat.value).toBe("20");
+
+      const pct = screen.getByTestId('pct')
+      fireEvent.change(pct, {
+        target: {
+          value: 2
+        }
+      });
+      expect(pct.value).toBe("2");
+
+      const commentary = screen.getByTestId('commentary')
+      fireEvent.change(commentary, {
+        target: {
+          value: "pasunemail"
+        }
+      });
+      expect(commentary.value).toBe("pasunemail")
+
+      const file = screen.getByTestId('file')
+      file.addEventListener("change", handleChangeFile)
+      fireEvent.change(file, {
+        target: {
+          files: [new File(['(⌐□_□)'], 'chucknorris.png', {
+            type: 'image/png'
+          })]
+        }
+      })
+
+      expect(handleChangeFile).toHaveBeenCalled()
+
+      const bill = await create();
+      expect(create).toHaveBeenCalled();
+      expect(bill.fileUrl).toBe('https://localhost:3456/images/test.jpg');
+      expect(bill.key).toBe('1234');
+
+      const uploadedBill = {
+        email: "a@a",
+            type: "Transports",
+            name: "Vol Paris-Madrid",
+            amount: 345,
+            date: "2020-03-01",
+            vat: 20,
+            pct: 2,
+            commentary: "pasunemail",
+            fileName: 'chucknorris.jpg',
+            status: 'pending',
+            fileUrl: bill.fileUrl,
+            key: bill.key
+      }
+
+      const formNewBill = screen.getByTestId('form-new-bill');
+
+
+
+
+      formNewBill.addEventListener("submit", handleSubmit)
+      fireEvent.submit(formNewBill);
+      expect(handleSubmit).toHaveBeenCalled();
+
+      const billToUpdate = await update(uploadedBill);
+
+      expect(update).toHaveBeenCalled();
+      expect(billToUpdate.fileUrl).toBe("https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a")
+      expect(update).toHaveBeenCalledWith({
+        email: "a@a",
+        type: "Transports",
+        name: "Vol Paris-Madrid",
+        amount: 345,
+        date: "2020-03-01",
+        vat: 20,
+        pct: 2,
+        commentary: "pasunemail",
+        fileName: 'chucknorris.jpg',
+        status: 'pending',
+        fileUrl: "https://localhost:3456/images/test.jpg",
+        key: "1234",
+      });
     })
   })
 })

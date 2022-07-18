@@ -82,16 +82,9 @@ describe("Given I am connected as an employee", () => {
           document, onNavigate, store, localStorage: window.localStorage
         })
 
-        console.log("het");
-        console.log(document.querySelectorAll("tr")[1].innerHTML);
-        console.log(document.getElementById("eye").innerHTML);
-
         const eyes = screen.getAllByTestId('icon-eye');
         const eye1 = eyes[0]
-        console.log(eyes[0]);
-
         const handleClickIconEye1 = jest.fn(billpage.handleClickIconEye(eye1))
- 
         eye1.addEventListener("click", handleClickIconEye1);
         userEvent.click(eye1)
         expect(handleClickIconEye1).toHaveBeenCalled()

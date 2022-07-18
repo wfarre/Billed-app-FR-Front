@@ -4,12 +4,9 @@
 
 import {
   fireEvent,
-  getByTestId,
   screen,
-  wait,
   waitFor
 } from "@testing-library/dom";
-import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import router from "../app/Router.js";
 import {
@@ -20,11 +17,7 @@ import {
   localStorageMock
 } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store";
-import userEvent from "@testing-library/user-event";
-import {
-  checkIfFileTypeIsValid,
-  returnRightFile
-} from "../containers/NewBill.js";
+
 
 
 
@@ -33,28 +26,54 @@ import {
 
 // test unitaire
 describe("Given I upload a picture", () => {
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+  });
+  window.localStorage.setItem(
+    "user",
+    JSON.stringify({
+      type: "Employee",
+    })
+  );
+
+  const root = document.createElement("div");
+
+  root.setAttribute("id", "root");
+
+  document.body.append(root);
+
+  router();
+  window.onNavigate(ROUTES_PATH.NewBill);
+
+  const newBill = new NewBill({
+    document,
+    onNavigate,
+    store: mockStore,
+    localStorage: window.localStorage
+  })
   describe("When the picture is at the wrong format", () => {
     test("Then the file is not valid", () => {
-      expect(checkIfFileTypeIsValid("toto.txt")).toBe(false);
+      expect(newBill.checkIfFileTypeIsValid("toto.txt")).toBe(false);
     })
     test("Then it should throw an error", () => {
       function wrongFile() {
-        returnRightFile("toto.txt");
+        const input = screen.getAllByTestId("file")
+        newBill.returnRightFile("toto.txt", input);
       }
       expect(wrongFile).toThrowError(new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format'))
     })
   })
   describe("When the picture is at the right format", () => {
     test("Then the file is valid", () => {
-      expect(checkIfFileTypeIsValid("toto.jpg")).toBe(true);
+      expect(newBill.checkIfFileTypeIsValid("toto.jpg")).toBe(true);
 
     })
     test("Then it should return the name of the file", () => {
-      expect(returnRightFile("toto.jpg")).toBe("toto.jpg")
-      expect(returnRightFile("toto.jpeg")).toBe("toto.jpeg")
-      expect(returnRightFile("toto.png")).toBe("toto.png")
-      expect(returnRightFile("toto.png")).not.toBe("toto.txt");
-      expect(returnRightFile("toto.jpg")).not.toBe("gertrude.jpg")
+      expect(newBill.returnRightFile("toto.jpg")).toBe("toto.jpg")
+      expect(newBill.returnRightFile("toto.jpeg")).toBe("toto.jpeg")
+      expect(newBill.returnRightFile("toto.png")).toBe("toto.png")
+      expect(newBill.returnRightFile("toto.png")).not.toBe("toto.txt");
+      expect(newBill.returnRightFile("toto.jpg")).not.toBe("gertrude.jpg")
     })
   })
 })
@@ -77,16 +96,19 @@ describe("Given I am connected as an employee", () => {
           type: "Employee",
         })
       );
+
       const root = document.createElement("div");
+
       root.setAttribute("id", "root");
       document.body.append(root);
+
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
 
       expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy();
-
     });
     test("Then the mail icon in the vertical layout should be highlighted", async () => {
+
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
       });
@@ -96,14 +118,19 @@ describe("Given I am connected as an employee", () => {
           type: "Employee",
         })
       );
+
       const root = document.createElement("div");
+
       root.setAttribute("id", "root");
       document.body.append(root);
+
       router();
+
       window.onNavigate(ROUTES_PATH.NewBill);
 
       await waitFor(() => screen.getByTestId("icon-mail"));
       const mailIcon = screen.getByTestId("icon-mail");
+
       //to-do write expect expression
       expect(mailIcon.classList).toContain(`active-icon`);
     });
@@ -117,15 +144,20 @@ describe("Given I am connected as an employee", () => {
           type: "Employee",
         })
       );
+
       const root = document.createElement("div");
+
       root.setAttribute("id", "root");
+
       document.body.append(root);
+
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
 
       await waitFor(() => screen.getByTestId("form-new-bill"));
       const form = screen.getByTestId("form-new-bill");
       expect(form).toBeTruthy();
+
       expect(form).toMatchInlineSnapshot(`
         <form
           data-testid="form-new-bill"
@@ -430,7 +462,6 @@ describe("Given I am connected as an employee", () => {
         </form>
       `);
     });
-
   })
 })
 
@@ -448,9 +479,12 @@ describe("Given I am connected as an employee", () => {
             type: "Employee",
           })
         );
+
         const root = document.createElement("div");
         root.setAttribute("id", "root");
+
         document.body.append(root);
+
         router();
         window.onNavigate(ROUTES_PATH.NewBill);
 
@@ -471,7 +505,8 @@ describe("Given I am connected as an employee", () => {
               type: 'text/txt'
             })]
           }
-        })
+        });
+
         expect(handleChangeFile).toHaveBeenCalled();
         expect(handleChangeFile).toThrowError(Error);
       })
@@ -485,9 +520,13 @@ describe("Given I am connected as an employee", () => {
             type: "Employee",
           })
         );
+
         const root = document.createElement("div");
+
         root.setAttribute("id", "root");
+
         document.body.append(root);
+
         router();
         window.onNavigate(ROUTES_PATH.NewBill);
 
@@ -498,9 +537,9 @@ describe("Given I am connected as an employee", () => {
           localStorage: window.localStorage
         })
 
-        const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
+        const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e));
+        const file = screen.getByTestId('file');
 
-        const file = screen.getByTestId('file')
         file.addEventListener("change", handleChangeFile)
         fireEvent.change(file, {
           target: {
@@ -509,6 +548,7 @@ describe("Given I am connected as an employee", () => {
             })]
           }
         })
+
         expect(handleChangeFile).toHaveBeenCalled();
         expect(handleChangeFile).toBeTruthy();
       })
@@ -640,9 +680,12 @@ describe("Given I am connected as an employee", () => {
     test("Then it should be created in the store", async () => {
       const root = document.createElement("div");
       root.setAttribute("id", "root");
+
       document.body.append(root);
+    
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
+
       const newBill = new NewBill({
         document,
         onNavigate,
@@ -650,71 +693,88 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage
       })
 
+ // my mock functions 
       const handleSubmit = jest.fn(e => newBill.handleSubmit(e))
       const handleChangeFile = jest.fn(e => newBill.handleChangeFile(e))
-
       const update = jest.fn(mockStore.bills().update);
       const create = jest.fn(mockStore.bills().create);
 
 
+      // the user enters data 
       const type = screen.getByTestId('expense-type')
+
       fireEvent.change(type, {
         target: {
           value: "Transports"
         }
       });
+
       expect(type.value).toBe("Transports");
 
       const name = screen.getByTestId('expense-name')
+
       fireEvent.change(name, {
         target: {
           value: "Vol Paris-Madrid"
         }
       });
+
       expect(name.value).toBe("Vol Paris-Madrid");
 
       const amount = screen.getByTestId('amount')
+
       fireEvent.change(amount, {
         target: {
           value: 345
         }
       });
+
       expect(amount.value).toBe("345");
 
       const date = screen.getByTestId('datepicker')
+
       fireEvent.change(date, {
         target: {
           value: "2020-03-01"
         }
       });
+
       expect(date.value).toBe("2020-03-01");
 
       const vat = screen.getByTestId('vat')
+
       fireEvent.change(vat, {
         target: {
           value: 20
         }
       });
+
       expect(vat.value).toBe("20");
 
       const pct = screen.getByTestId('pct')
+
       fireEvent.change(pct, {
         target: {
           value: 2
         }
       });
+
       expect(pct.value).toBe("2");
 
       const commentary = screen.getByTestId('commentary')
+
       fireEvent.change(commentary, {
         target: {
           value: "pasunemail"
         }
       });
+
       expect(commentary.value).toBe("pasunemail")
 
       const file = screen.getByTestId('file')
+
       file.addEventListener("change", handleChangeFile)
+
       fireEvent.change(file, {
         target: {
           files: [new File(['(⌐□_□)'], 'chucknorris.png', {
@@ -722,36 +782,36 @@ describe("Given I am connected as an employee", () => {
           })]
         }
       })
+      // the user entered all the datas 
 
       expect(handleChangeFile).toHaveBeenCalled()
 
       const bill = await create();
+
       expect(create).toHaveBeenCalled();
       expect(bill.fileUrl).toBe('https://localhost:3456/images/test.jpg');
       expect(bill.key).toBe('1234');
 
       const uploadedBill = {
         email: "a@a",
-            type: "Transports",
-            name: "Vol Paris-Madrid",
-            amount: 345,
-            date: "2020-03-01",
-            vat: 20,
-            pct: 2,
-            commentary: "pasunemail",
-            fileName: 'chucknorris.jpg',
-            status: 'pending',
-            fileUrl: bill.fileUrl,
-            key: bill.key
+        type: "Transports",
+        name: "Vol Paris-Madrid",
+        amount: 345,
+        date: "2020-03-01",
+        vat: 20,
+        pct: 2,
+        commentary: "pasunemail",
+        fileName: 'chucknorris.jpg',
+        status: 'pending',
+        fileUrl: bill.fileUrl,
+        key: bill.key
       }
 
       const formNewBill = screen.getByTestId('form-new-bill');
 
-
-
-
       formNewBill.addEventListener("submit", handleSubmit)
       fireEvent.submit(formNewBill);
+
       expect(handleSubmit).toHaveBeenCalled();
 
       const billToUpdate = await update(uploadedBill);

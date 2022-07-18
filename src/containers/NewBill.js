@@ -3,38 +3,38 @@ import {
 } from '../constants/routes.js'
 import Logout from "./Logout.js"
 
-/* we check if the file as the right extension JPEG JPG PNG */
-export function checkIfFileTypeIsValid(file) {
+// /* we check if the file as the right extension JPEG JPG PNG */
+// export function checkIfFileTypeIsValid(file) {
 
-  /* we get the extension from the file */
-  function getExtension(filename) {
-    const ext = filename.split('.');
-    return ext[ext.length - 1].toLowerCase();
-  }
+//   /* we get the extension from the file */
+//   function getExtension(filename) {
+//     const ext = filename.split('.');
+//     return ext[ext.length - 1].toLowerCase();
+//   }
 
-  const validFileTypes = ['jpeg', 'jpg', 'png'];
+//   const validFileTypes = ['jpeg', 'jpg', 'png'];
 
-  let isValid = false;
-  console.log(file);
-  const extension = getExtension(file)
-  console.log(extension);
-  validFileTypes.map(type => {
-    if (extension === type) {
-      return isValid = true;
-    }
-  })
-  return isValid;
-}
+//   let isValid = false;
+//   console.log(file);
+//   const extension = getExtension(file)
+//   console.log(extension);
+//   validFileTypes.map(type => {
+//     if (extension === type) {
+//       return isValid = true;
+//     }
+//   })
+//   return isValid;
+// }
 
 
-export function returnRightFile(fileName, input) {
-  if (checkIfFileTypeIsValid(fileName)) {
-    return fileName;
-  } else {
-    input = null;
-    throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format')
-  }
-}
+// export function returnRightFile(fileName, input) {
+//   if (checkIfFileTypeIsValid(fileName)) {
+//     return fileName;
+//   } else {
+//     input.value = null;
+//     throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format')
+//   }
+// }
 
 export default class NewBill {
   constructor({
@@ -59,42 +59,47 @@ export default class NewBill {
       onNavigate
     })
   }
+
+/**
+ * we check if the file as the right extension JPEG JPG PNG 
+ **/
+  checkIfFileTypeIsValid(file) {
+
+    /* we get the extension from the file */
+    function getExtension(filename) {
+      const ext = filename.split('.');
+      return ext[ext.length - 1].toLowerCase();
+    }
+  
+    const validFileTypes = ['jpeg', 'jpg', 'png'];
+  
+    let isValid = false;
+    console.log(file);
+    const extension = getExtension(file)
+    console.log(extension);
+    validFileTypes.map(type => {
+      if (extension === type) {
+        return isValid = true;
+      }
+    })
+    return isValid;
+  }
+
+  /**
+   * we get the extension from the file 
+   **/
+  returnRightFile(fileName, input) {
+    if (this.checkIfFileTypeIsValid(fileName)) {
+      return fileName;
+    } else {
+      input.value = null      
+      throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format')
+    }
+  }
+
   handleChangeFile = e => {
 
     e.preventDefault()
-
-    // const validFileTypes = ['jpeg', 'jpg', 'png'];
-
-    // /* we get the extension from the file */
-    // function getExtension(filename) {
-    //   const ext = filename.split('.');
-    //   return ext[ext.length - 1].toLowerCase();
-    // }
-
-    // /* we check if the file as the right extension JPEG JPG PNG */
-    // function checkIfFileTypeIsValid(file, validFileTypes) {
-    //   let isValid = false;
-    //   console.log(file);
-    //   const extension = getExtension(file)
-    //   console.log(extension);
-    //   validFileTypes.map(type => {
-    //     if (extension === type) {
-    //       return isValid = true;
-    //     }
-    //   })
-    //   return isValid;
-    // }
-
-    /**
-     * return the file if the is valid or throw an error in the console and empty the input box  */
-    // function returnRightFile(fileName) {
-    //   if (checkIfFileTypeIsValid(fileName)) {
-    //     return fileName;
-    //   } else {
-    //     e.target.value = null;
-    //     throw new Error('wrong format: please send an image with the right format (jpg, jpeg or png) format')
-    //   }
-    // }
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length - 1]
@@ -118,7 +123,7 @@ export default class NewBill {
       }) => {
         this.billId = key
         this.fileUrl = fileUrl
-        this.fileName = returnRightFile(fileName,  e.target.value);
+        this.fileName = this.returnRightFile(fileName,  e.target);
       }).catch(error => console.error(error))
   }
 
@@ -127,7 +132,6 @@ export default class NewBill {
 
     
 
-    // console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
